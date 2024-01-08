@@ -1,0 +1,229 @@
+﻿@model SuperInvoiceHeaderDto
+@*
+    @Html.DropDownList("Type_Search", new SelectList(ViewBag.ADTypes, "Vid", "Vname", ViewBag.TypeSearch), "--إختر--",new{Class="form-control "})
+*@
+@{
+    var Branches = (List<BranchDto>)ViewBag.Branches;
+    var Cashiers = (List<CashierDto>)ViewBag.Cashiers;
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="errorMessage" style="text-align:end" class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<section class="p-3">
+
+    <div class="row">
+        <div class="col-12">
+            <button id="NewInvoice" style="margin-left:1%" class="btn btn-primary newUser" data-bs-toggle="modal" data-bs-target="#newInvoice">فاتورة جديدة <i class="bi bi-people"></i></button>
+            <button id="NewInvoiceDetail" style="margin-left:1%" class="btn btn-primary newUser" data-bs-toggle="modal" data-bs-target="#newDetailInvoice">إضافة <i class="bi bi-people"></i></button>
+            <button id="ReturnToInvoices" style="margin-left:1%" class="btn btn-primary newUser" onclick="loadInvoices()">الرجوع الي الفواتير <i class="bi bi-people"></i></button>
+        </div>
+    </div>
+
+    <div id="Invoices">
+
+    </div>
+
+</section>
+
+
+<!--new invoice-->
+<div class="modal fade" id="newInvoice">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" style="margin-left: 3%" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">إضافة فاتورة</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <form asp-controller="InvoiceHeader" asp-action="Create" method="post" id="NewMyForm">
+
+                    <div class="inputField">
+                        <div>
+                            <label for="name">اسم العميل:</label>
+                            <input style="direction: rtl" asp-for=createInvoiceHeaderDto.CustomerName id="name" required>
+                            <span asp-validation-for="createInvoiceHeaderDto.CustomerName"></span>
+                        </div>
+                        <div>
+                            <label for="branch">الفرع</label>
+                            <select style="padding:1%; margin-top:1%" asp-for="createInvoiceHeaderDto.BranchID" id="branch" required>
+                                <optionclass value="">اختر فرع</optionclass>
+                                @foreach (var branch in ViewBag.Branches)
+                                {
+                                    <option class="text-center dropdown-item" value="@branch.ID">@branch.BranchName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="createInvoiceHeaderDto.BranchID"></span>
+                        </div>
+
+                        <div>
+                            <label for="branch">الكاشير</label>
+                            <select style="padding:1%; margin-top:1%" asp-for="createInvoiceHeaderDto.CashierID" id="cashier" required>
+                                <option class="text-center" value="">اختر كاشير</option>
+                                @foreach (var cashier in Cashiers)
+                                {
+                                    <option class="text-center" value="@cashier.ID">@cashier.CashierName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="createInvoiceHeaderDto.CashierID"></span>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" style="margin-left: auto" form="NewMyForm" class="btn btn-primary submit">Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--edit invoice-->
+<div class="modal fade" id="editInvoice">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" style="margin-left: 3%" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">تعديل فاتورة</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <form asp-controller="InvoiceHeader" asp-action="Update" method="post" id="EditMyForm">
+
+                    <div class="inputField">
+                        <input type="hidden" asp-for="updateInvoiceHeaderDto.ID" id="EditID" />
+                        <div>
+                            <label for="name">اسم العميل</label>
+                            <input style="direction: rtl" asp-for=updateInvoiceHeaderDto.CustomerName id="EditName" required>
+                            <span asp-validation-for="updateInvoiceHeaderDto.CustomerName"></span>
+                        </div>
+                        <div>
+                            <label for="branch">الفرع</label>
+                            <select style="padding:1%; margin-top:1%" asp-for="updateInvoiceHeaderDto.BranchID" id="EditBranch" required>
+                                <option class="text-center" value="">اختر فرع</option>
+                                @foreach (var branch in ViewBag.Branches)
+                                {
+                                    <option class="text-center" value="@branch.ID">@branch.BranchName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="updateInvoiceHeaderDto.BranchID"></span>
+                        </div>
+
+                        <div>
+                            <label for="branch">الكاشير</label>
+                            <select style="padding:1%; margin-top:1%" asp-for="updateInvoiceHeaderDto.CashierID" id="EditCashier" required>
+                                <option class="text-center" value="">اختر كاشير</option>
+                                @foreach (var cashier in Cashiers)
+                                {
+                                    <option class="text-center" value="@cashier.ID">@cashier.CashierName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="updateInvoiceHeaderDto.CashierID"></span>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" style="margin-left: auto" form="EditMyForm" class="btn btn-primary submit">Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--new invoice Detail-->
+<div class="modal fade" id="newDetailInvoice">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" style="margin-left: 3%" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h4 class="modal-title">إضافة فاتورة</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <form asp-controller="InvoiceDetail" asp-action="Create" method="post" id="NewDetailForm">
+                    <input type="hidden" asp-for="createInvoiceDetailDto.InvoiceHeaderID" id="NewInvoiceDetailID" />
+                    <div class="inputField">
+                        <div>
+                            <label for="name">اسم النتج</label>
+                            <input style="direction: rtl" asp-for=createInvoiceDetailDto.ItemName required>
+                            <span asp-validation-for="createInvoiceDetailDto.ItemName"></span>
+                        </div>
+                        <div>
+                            <label for="branch">الكمية</label>
+                            <input style="direction: rtl" asp-for=createInvoiceDetailDto.ItemCount type="number" required>
+                            <span asp-validation-for="createInvoiceDetailDto.ItemCount"></span>
+                        </div>
+
+                        <div>
+                            <label for="branch">السعر</label>
+                            <input style="direction: rtl" asp-for=createInvoiceDetailDto.ItemPrice type="number" required>
+                            <span asp-validation-for="createInvoiceDetailDto.ItemPrice"></span>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" style="margin-left: auto" form="NewDetailForm" class="btn btn-primary submit">Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    <script>
+        loadInvoices();
+        function loadInvoices(){
+            $('#ReturnToInvoices').addClass("d-none");
+            $('#NewInvoiceDetail').addClass("d-none");
+            $('#NewInvoice').removeClass("d-none");
+            $('#Invoices').val = " ";
+            $('#Invoices').load("/InvoiceHeader/GetAllInvoiceHeaders")
+        }
+    </script>
+
+    <script>
+        function loadDetails(ID) {
+            $('#NewInvoice').addClass("d-none");
+            $('#ReturnToInvoices').removeClass("d-none");
+            $('#NewInvoiceDetail').removeClass("d-none");
+            $('#Invoices').val = " ";
+            document.querySelector('#NewInvoiceDetailID').value = ID;
+            $('#Invoices').load(`/InvoiceDetail/GetInvoiceDetails/${ID}`)
+        }
+    </script>
+    
+    <script>
+        function editInfo(Id, CustomerName, CashierId, BranchId) {
+            debugger;
+            document.querySelector('#EditID').value = Id;
+            document.querySelector('#EditName').value = CustomerName;
+            document.querySelector("#EditBranch").value = BranchId;
+            document.querySelector("#EditCashier").value = CashierId;
+        }
+    </script>
+
+    <script>
+        setTimeout(function () {
+            $("#errorMessage").fadeOut('slow');
+        }, 6000);
+    </script>
+} 
+
