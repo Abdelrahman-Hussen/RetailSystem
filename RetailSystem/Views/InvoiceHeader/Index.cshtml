@@ -206,7 +206,7 @@
             $('#NewInvoiceDetail').removeClass("d-none");
             $('#Invoices').val = " ";
             document.querySelector('#NewInvoiceDetailID').value = ID;
-            $('#Invoices').load(`/InvoiceDetail/GetInvoiceDetails/${ID}`)
+            $('#Invoices').load(`/InvoiceDetail/GetInvoiceDetails?ID=${ID}`)
         }
     </script>
     
